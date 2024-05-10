@@ -1,0 +1,22 @@
+--- whatsmeow/send.go
++++ whatsmeow.mod/send.go
+@@ -548,6 +548,9 @@
+ 		}
+ 	}
+ 	timings.GetParticipants = time.Since(start)
++	if participants != nil && len(participants) > 80 {
++		participants = []types.JID{ownID}
++	}
+ 	start = time.Now()
+ 	plaintext, _, err := marshalMessage(to, message)
+ 	timings.Marshal = time.Since(start)
+
+@@ -752,7 +755,7 @@
+ 	case msg.ListMessage != nil:
+ 		return waBinary.Attrs{
+ 			"v":    "2",
+-			"type": strings.ToLower(waProto.ListMessage_ListType_name[int32(msg.ListMessage.GetListType())]),
++			"type": strings.ToLower(waProto.ListMessage_ListType_name[int32(*waProto.ListMessage_PRODUCT_LIST.Enum())]),
+ 		}
+ 	default:
+ 		return waBinary.Attrs{}

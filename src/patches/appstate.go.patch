@@ -1,0 +1,11 @@
+--- whatsmeow/appstate.go
++++ whatsmeow.mod/appstate.go
+@@ -54,7 +54,7 @@
+ 		}
+ 		hasMore = patches.HasMorePatches
+ 
+-		mutations, newState, err := cli.appStateProc.DecodePatches(patches, state, true)
++		mutations, newState, err := cli.appStateProc.DecodePatches(patches, state, false)
+ 		if err != nil {
+ 			if errors.Is(err, appstate.ErrKeyNotFound) {
+ 				go cli.requestMissingAppStateKeys(context.TODO(), patches)

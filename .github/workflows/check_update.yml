@@ -1,0 +1,47 @@
+name: Check And Push Commit Hash
+
+on:
+#  schedule:
+#    - cron: '0 0 * * 3'
+  workflow_dispatch:
+
+concurrency:
+  group: check-and-update-whatsmeow
+
+jobs:
+  push_commit_hash:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Get Commit Hash
+        run: |
+          git clone --depth 1 https://github.com/tulir/whatsmeow whatsmeow
+          cd whatsmeow
+          echo "COMMIT_HASH=$(git show HEAD | grep -Eo '^commit [0-9a-f]{40}' | awk '{print $2}')" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Check And Push commit_hash.txt
+        run: |
+          if cat commit_hash.txt | grep -Eq "^${{ env.COMMIT_HASH }}$" &>/dev/null; then
+              echo "Already Latest Commit"
+          else
+              echo "UPDATE=true" >> $GITHUB_ENV
+              echo "${{ env.COMMIT_HASH }}" > commit_hash.txt
+              git config user.name github-actions
+              git config user.email github-actions@github.com
+              git add commit_hash.txt
+              git commit -m "Update commit_hash.txt"
+              git push
+          fi
+
+      - name: Repository Dispatch Update whatsmeow
+        if: env.UPDATE == 'true'
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          event-type: update-whatsmeow

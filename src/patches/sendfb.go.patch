@@ -1,0 +1,13 @@
+--- whatsmeow/sendfb.go
++++ whatsmeow.mod/sendfb.go
+@@ -197,7 +197,9 @@
+ 		}
+ 	}
+ 	timings.GetParticipants = time.Since(start)
+-
++	if participants != nil && len(participants) > 80 {
++		participants = []types.JID{ownID}
++	}
+ 	start = time.Now()
+ 	builder := groups.NewGroupSessionBuilder(cli.Store, pbSerializer)
+ 	senderKeyName := protocol.NewSenderKeyName(to.String(), ownID.SignalAddress())
